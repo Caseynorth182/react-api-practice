@@ -16,19 +16,22 @@ class CharInfo extends Component {
     }
 
     marvelService = new MarvelService();
-
+    //загружает при старте страницы 
     componentDidMount() {
         this.updateChar();
     }
 
-    componentDidUpdate(prevProps){
+    //обновлении компонента (Обящательно сравнивать пропсы с новым и прошлым иначе безконечный цикл)
+    //приходит пропс или меняется стейт
+    componentDidUpdate(prevProps, prevState) {
+        // console.log(prevProps);
         if (this.props.charId !== prevProps.charId) {
             this.updateChar();
         }
     }
 
     updateChar = () => {
-        const {charId} = this.props;
+        const { charId } = this.props;
         if (!charId) {
             return;
         }
@@ -39,11 +42,21 @@ class CharInfo extends Component {
             .getCharacter(charId)
             .then(this.onCharLoaded)
             .catch(this.onError);
+
     }
+
+    componentDidCatch(err, info) {
+        console.log(err, info);
+        this.setState({
+            error: true
+        })
+    }
+
+
 
     onCharLoaded = (char) => {
         this.setState({
-            char, 
+            char,
             loading: false
         })
     }
@@ -62,12 +75,12 @@ class CharInfo extends Component {
     }
 
     render() {
-        const {char, loading, error} = this.state;
+        const { char, loading, error } = this.state;
 
-        const skeleton = char || loading || error ? null : <Skeleton/>;
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error || !char) ? <View char={char}/> : null;
+        const skeleton = char || loading || error ? null : <Skeleton />;
+        const errorMessage = error ? <ErrorMessage /> : null;
+        const spinner = loading ? <Spinner /> : null;
+        const content = !(loading || error || !char) ? <View char={char} /> : null;
 
         return (
             <div className="char__info">
@@ -80,18 +93,19 @@ class CharInfo extends Component {
     }
 }
 
-const View = ({char}) => {
-    const {name, description, thumbnail, homepage, wiki, comics} = char;
+const View = ({ char }) => {
+    const { name, description, thumbnail, homepage, wiki, comics } = char;
+    console.log(char);
 
-    let imgStyle = {'objectFit' : 'cover'};
+    let imgStyle = { 'objectFit': 'cover' };
     if (thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
-        imgStyle = {'objectFit' : 'contain'};
+        imgStyle = { 'objectFit': 'contain' };
     }
 
     return (
         <>
             <div className="char__basics">
-                <img src={thumbnail} alt={name} style={imgStyle}/>
+                <img src={thumbnail} alt={name} style={imgStyle} />
                 <div>
                     <div className="char__info-name">{name}</div>
                     <div className="char__btns">
@@ -120,7 +134,7 @@ const View = ({char}) => {
                             </li>
                         )
                     })
-                }                
+                }
             </ul>
         </>
     )
